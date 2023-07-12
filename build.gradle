@@ -1,0 +1,52 @@
+plugins {
+    id "java"
+    id "org.springframework.boot" version "3.1.1"
+    id "io.spring.dependency-management" version "1.1.0"
+}
+
+group = "com.github.KarKarych"
+version = "0.0.1-SNAPSHOT"
+
+java {
+    sourceCompatibility = "17"
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    openapi = "2.1.0"
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web"
+
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+
+    runtimeOnly "org.postgresql:postgresql"
+
+//    implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
+//    implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
+//    implementation "org.springframework.boot:spring-boot-starter-security"
+
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${openapi}"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.security:spring-security-test"
+}
+
+tasks.named("test") {
+    useJUnitPlatform()
+}

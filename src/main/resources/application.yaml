@@ -1,0 +1,31 @@
+settings:
+  server:
+    port: ${SERVER_PORT}
+  db:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+
+server:
+  servlet:
+    context-path: /api
+  port: ${settings.server.port}
+
+spring:
+  application:
+    name: core-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${settings.db.url}
+    username: ${settings.db.username}
+    password: ${settings.db.password}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+springdoc:
+  swagger-ui:
+    path: /swagger
+  api-docs:
+    path: /api-docs
