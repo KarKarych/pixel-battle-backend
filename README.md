@@ -13,4 +13,4 @@
 
 ### API приложения
 - Порт по умолчанию `8085`
-- OpenAPI `/swagger`
+- OpenAPI `/api/swagger`
