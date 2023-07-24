@@ -1,15 +1,16 @@
 package com.github.karkarych.pixelbattledsr.rest;
 
 import com.github.karkarych.pixelbattledsr.service.logic.FieldService;
-import com.github.karkarych.pixelbattledsr.service.model.CoordinatesRequest;
-import com.github.karkarych.pixelbattledsr.service.model.FieldResponse;
+import com.github.karkarych.pixelbattledsr.service.model.field.CoordinatesRequest;
+import com.github.karkarych.pixelbattledsr.service.model.field.FieldResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/fields")
 @RestController
 public class FieldController {
@@ -22,12 +23,10 @@ public class FieldController {
   }
 
   @PostMapping("/coordinates")
-  public void saveCoordinates(@RequestBody CoordinatesRequest request) {
-    fieldService.saveCoordinates(request);
+  public void saveCoordinates(
+    @RequestBody CoordinatesRequest request,
+    @AuthenticationPrincipal UserDetails userDetails
+  ) {
+    fieldService.saveCoordinates(request, userDetails.getUsername());
   }
 }
-
-//юзер контроллер
-//логин
-//регистер
-//логаут

@@ -1,7 +1,7 @@
 package com.github.karkarych.pixelbattledsr.service.logic.impl;
 
 import com.github.karkarych.pixelbattledsr.service.logic.WebsocketService;
-import com.github.karkarych.pixelbattledsr.service.model.CoordinatesRequest;
+import com.github.karkarych.pixelbattledsr.service.model.field.CoordinatesRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;

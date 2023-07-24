@@ -1,10 +1,14 @@
 settings:
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
+  cookie-token-key: '{"kty":"oct","k":"pRBbJ5V5Jme3DrVU-bBs_EodILdMV4G-HA6SwQ9Dbkw","alg":"A256GCMKW"}'
   server:
-    port: ${SERVER_PORT}
+    port: ${SERVER_PORT:8085}
   db:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASS}
+    url: ${DB_URL:jdbc:postgresql://localhost:6543/pixel_battle}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:123321}
+  redis:
+    host: ${REDIS_HOST:redis://localhost:6379}
 
 server:
   servlet:
@@ -33,6 +37,10 @@ spring:
           batch_size: 500
           order_inserts: true
           order_updates: true
+  data:
+    redis:
+      url: ${settings.redis.host}
+
 
 springdoc:
   swagger-ui:
@@ -46,3 +54,6 @@ pixel-battle:
   rows: 100
   columns: 50
 
+logging:
+  level:
+    org.springframework.data.redis: TRACE

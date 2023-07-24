@@ -3,20 +3,28 @@ package com.github.karkarych.pixelbattledsr.db.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Setter
+@SuperBuilder
+@NoArgsConstructor
+@NamedEntityGraph(
+  name = "graph.UserWithAuthorities",
+  attributeNodes = @NamedAttributeNode(value = "userAuthorities")
+)
 @Table(name = "users")
 @Entity
 public class User {
 
   @Id
+  @GeneratedValue
   @Column(name = "id", nullable = false)
   private UUID id;
 
@@ -24,13 +32,8 @@ public class User {
   @Column(name = "login", nullable = false, length = Integer.MAX_VALUE)
   private String login;
 
-  @NotNull
-  @Column(name = "email", nullable = false, length = Integer.MAX_VALUE)
+  @Column(name = "email", length = Integer.MAX_VALUE)
   private String email;
-
-  @NotNull
-  @Column(name = "last_access_date", nullable = false)
-  private Instant lastAccessDate;
 
   @NotNull
   @Column(name = "password_hash", nullable = false, length = Integer.MAX_VALUE)
@@ -42,4 +45,13 @@ public class User {
 
   @ManyToMany(mappedBy = "users")
   private Set<Team> teams = new LinkedHashSet<>();
+
+  @OneToMany(mappedBy = "user")
+  private Set<UserAuthority> userAuthorities = new LinkedHashSet<>();
+
+  public User(String login, String passwordHash) {
+    this.login = login;
+    this.passwordHash = passwordHash;
+    this.capturedCells = 0;
+  }
 }

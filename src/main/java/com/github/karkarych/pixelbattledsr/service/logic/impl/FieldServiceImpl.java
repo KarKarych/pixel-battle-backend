@@ -2,12 +2,15 @@ package com.github.karkarych.pixelbattledsr.service.logic.impl;
 
 import com.github.karkarych.pixelbattledsr.db.entity.Field;
 import com.github.karkarych.pixelbattledsr.db.entity.FieldId;
+import com.github.karkarych.pixelbattledsr.db.entity.User;
 import com.github.karkarych.pixelbattledsr.db.repository.FieldRepository;
 import com.github.karkarych.pixelbattledsr.db.repository.UserRepository;
+import com.github.karkarych.pixelbattledsr.redis.UserCache;
+import com.github.karkarych.pixelbattledsr.redis.UserCacheRepository;
 import com.github.karkarych.pixelbattledsr.service.logic.FieldService;
 import com.github.karkarych.pixelbattledsr.service.logic.WebsocketService;
-import com.github.karkarych.pixelbattledsr.service.model.CoordinatesRequest;
-import com.github.karkarych.pixelbattledsr.service.model.FieldResponse;
+import com.github.karkarych.pixelbattledsr.service.model.field.CoordinatesRequest;
+import com.github.karkarych.pixelbattledsr.service.model.field.FieldResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +23,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.github.karkarych.pixelbattledsr.service.exception.model.FieldException.Code.*;
@@ -39,6 +43,7 @@ public class FieldServiceImpl implements FieldService {
   private int requestTimeout;
 
   private final UserRepository userRepository;
+  private final UserCacheRepository userCacheRepository;
   private final FieldRepository fieldRepository;
   private final WebsocketService websocketService;
 
@@ -58,26 +63,31 @@ public class FieldServiceImpl implements FieldService {
 
   @Override
   @Transactional
-  public void saveCoordinates(CoordinatesRequest request) {
+  public void saveCoordinates(CoordinatesRequest request, String username) {
     int row = request.row();
     int column = request.column();
     String color = request.color();
 
-    if (row < 1 || row > rows) throw FIELD_ROW_OUT_OF_RANGE.get();
-    if (column < 1 || column > columns) throw FIELD_COLUMN_OUT_OF_RANGE.get();
+    if (row < 0 || row > rows) throw FIELD_ROW_OUT_OF_RANGE.get();
+    if (column < 0 || column > columns) throw FIELD_COLUMN_OUT_OF_RANGE.get();
 
-    UUID userId = request.userId();
+    UUID userId = userRepository.findByLogin(username)
+      .map(User::getId)
+      .orElseThrow();
+
     Instant currentAccessDate = Instant.now();
-    Instant lastAccessDate = userRepository.findLastAccessDateById(userId);
 
-    long durationBetweenClientAccesses = Duration.between(lastAccessDate, currentAccessDate).getSeconds();
-    if (durationBetweenClientAccesses < requestTimeout) {
-      log.debug("User with id {}; Too many requests", userId);
-      throw FIELD_TOO_MANY_REQUEST_UPDATE.get();
+    Optional<UserCache> userCacheOpt = userCacheRepository.findById(userId.toString());
+    if (userCacheOpt.isPresent()) {
+      Instant lastAccessDate = userCacheOpt.get().getLastAccessDate();
+      long durationBetweenClientAccesses = Duration.between(lastAccessDate, currentAccessDate).getSeconds();
+      if (durationBetweenClientAccesses < requestTimeout) {
+        throw FIELD_TOO_MANY_REQUEST_UPDATE.get();
+      }
     }
 
     Field field = fieldRepository.findById(new FieldId(row, column))
-      .orElseThrow(FIELD_NOT_FOUND::get);
+      .orElseThrow();
 
     UUID ownerId = field.getOwnerId();
     if (ownerId == null) {
@@ -87,7 +97,7 @@ public class FieldServiceImpl implements FieldService {
       userRepository.increaseCapturedCellsById(userId);
     }
 
-    userRepository.updateLastAccessDate(userId, currentAccessDate);
+    userCacheRepository.save(new UserCache(userId.toString(), currentAccessDate));
 
     field.setColor(color);
     field.setOwnerId(userId);

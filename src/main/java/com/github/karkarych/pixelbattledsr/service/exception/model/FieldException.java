@@ -21,7 +21,7 @@ public class FieldException extends RuntimeException {
 
     FIELD_ROW_OUT_OF_RANGE("Field row out of range"),
     FIELD_COLUMN_OUT_OF_RANGE("Field column out of range"),
-    FIELD_TOO_MANY_REQUEST_UPDATE("Field too many request update"),
+    FIELD_TOO_MANY_REQUEST_UPDATE("Too many requests for field update"),
     FIELD_NOT_FOUND("Field not found. Internal error"),
     ;
 
