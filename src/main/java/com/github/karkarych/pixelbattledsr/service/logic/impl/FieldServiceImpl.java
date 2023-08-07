@@ -5,8 +5,8 @@ import com.github.karkarych.pixelbattledsr.db.entity.FieldId;
 import com.github.karkarych.pixelbattledsr.db.entity.User;
 import com.github.karkarych.pixelbattledsr.db.repository.FieldRepository;
 import com.github.karkarych.pixelbattledsr.db.repository.UserRepository;
-import com.github.karkarych.pixelbattledsr.redis.UserCache;
-import com.github.karkarych.pixelbattledsr.redis.UserCacheRepository;
+import com.github.karkarych.pixelbattledsr.redis.entity.UserCache;
+import com.github.karkarych.pixelbattledsr.redis.repository.UserCacheRepository;
 import com.github.karkarych.pixelbattledsr.service.logic.FieldService;
 import com.github.karkarych.pixelbattledsr.service.logic.WebsocketService;
 import com.github.karkarych.pixelbattledsr.service.model.field.CoordinatesRequest;
@@ -58,7 +58,7 @@ public class FieldServiceImpl implements FieldService {
       field[id.getRow()][id.getColumn()] = point.getColor();
     }
 
-    return new FieldResponse(field);
+    return new FieldResponse(field, requestTimeout);
   }
 
   @Override
@@ -68,8 +68,8 @@ public class FieldServiceImpl implements FieldService {
     int column = request.column();
     String color = request.color();
 
-    if (row < 0 || row > rows) throw FIELD_ROW_OUT_OF_RANGE.get();
-    if (column < 0 || column > columns) throw FIELD_COLUMN_OUT_OF_RANGE.get();
+    if (row < 0 || row >= rows) throw FIELD_ROW_OUT_OF_RANGE.get();
+    if (column < 0 || column >= columns) throw FIELD_COLUMN_OUT_OF_RANGE.get();
 
     UUID userId = userRepository.findByLogin(username)
       .map(User::getId)
@@ -86,6 +86,14 @@ public class FieldServiceImpl implements FieldService {
       }
     }
 
+    userCacheRepository.save(new UserCache(userId.toString(), currentAccessDate));
+
+    saveCoordinates(row, column, color, userId);
+
+    websocketService.sendUpdatedField(request);
+  }
+
+  private void saveCoordinates(int row, int column, String color, UUID userId) {
     Field field = fieldRepository.findById(new FieldId(row, column))
       .orElseThrow();
 
@@ -97,20 +105,28 @@ public class FieldServiceImpl implements FieldService {
       userRepository.increaseCapturedCellsById(userId);
     }
 
-    userCacheRepository.save(new UserCache(userId.toString(), currentAccessDate));
-
     field.setColor(color);
     field.setOwnerId(userId);
-
-    websocketService.sendUpdatedField(request);
   }
 
+  /**
+   * Method that creates fields in the database based on the app configuration.
+   * The field will be created again if at least one of the conditions below is true <br>
+   * 1. fields table is empty <br>
+   * 2. createNew has the value true <br>
+   * 3. after the last launch of the application the dimensions of the field were changed
+   */
   @Transactional
   @EventListener(ContextRefreshedEvent.class)
   public void createField() {
-    if (!createNew) return;
+    if (fieldRepository.count() != 0) {
+      int maxRow = fieldRepository.findMaxRow() + 1;
+      int maxColumn = fieldRepository.findMaxColumn() + 1;
 
-    fieldRepository.deleteAll();
+      if (!createNew && maxRow == rows && maxColumn == columns) return;
+
+      fieldRepository.deleteAll();
+    }
 
     List<Field> allFields = new ArrayList<>(rows * columns);
     for (int row = 0; row < rows; row++) {

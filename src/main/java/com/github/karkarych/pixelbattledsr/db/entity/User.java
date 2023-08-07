@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,29 +29,39 @@ public class User {
   private UUID id;
 
   @NotNull
-  @Column(name = "login", nullable = false, length = Integer.MAX_VALUE)
+  @Column(name = "login", nullable = false)
   private String login;
 
-  @Column(name = "email", length = Integer.MAX_VALUE)
+  @Column(name = "email")
   private String email;
 
   @NotNull
-  @Column(name = "password_hash", nullable = false, length = Integer.MAX_VALUE)
+  @Column(name = "password_hash", nullable = false)
   private String passwordHash;
 
   @NotNull
   @Column(name = "captured_cells", nullable = false)
   private Integer capturedCells;
 
-  @ManyToMany(mappedBy = "users")
-  private Set<Team> teams = new LinkedHashSet<>();
-
   @OneToMany(mappedBy = "user")
-  private Set<UserAuthority> userAuthorities = new LinkedHashSet<>();
+  private Set<UserAuthority> userAuthorities;
 
   public User(String login, String passwordHash) {
     this.login = login;
     this.passwordHash = passwordHash;
     this.capturedCells = 0;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    User user = (User) o;
+    return Objects.equals(id, user.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 }

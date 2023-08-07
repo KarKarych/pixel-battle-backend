@@ -13,9 +13,10 @@ settings:
 
 pixel-battle:
   request-timeout: 2
-  create-new: true
-  rows: 100
+  create-new: false
+  rows: 80
   columns: 50
+  top-limit: 10
 
 server:
   servlet:

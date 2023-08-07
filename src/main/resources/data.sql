@@ -6,8 +6,8 @@ values ('c2af3798-c102-4fc2-a10d-019541f4ecbe','123','1','$2a$10$TysYPa9Cvd0IE/i
 on conflict do nothing;
 
 insert into teams
-values ('aba28a0b-6b58-4aff-9972-41e62ded17b5','Тестовая команда Бобры',0),
-       ('7fe8b27f-654a-459d-9f8c-cf2a484f22ef','Тестовая команда Волки',0)
+values ('aba28a0b-6b58-4aff-9972-41e62ded17b5','Тестовая команда Бобры','df8932d9-676c-4053-8d05-3ab505c30291',0),
+       ('7fe8b27f-654a-459d-9f8c-cf2a484f22ef','Тестовая команда Волки','231c7610-b045-41f9-8ab3-d29e469541b7',0)
 on conflict do nothing;
 
 insert into teams_users

@@ -9,7 +9,9 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 
-@EnableRedisRepositories
+@EnableRedisRepositories(
+  basePackages = "com.github.karkarych.pixelbattledsr.redis.repository"
+)
 @Configuration
 public class RedisConfiguration {
 

@@ -22,6 +22,6 @@ public class UserAuthority {
   private User user;
 
   @NotNull
-  @Column(name = "authority", nullable = false, length = Integer.MAX_VALUE)
+  @Column(name = "authority", nullable = false)
   private String authority;
 }

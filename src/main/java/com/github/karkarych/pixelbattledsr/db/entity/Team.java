@@ -11,21 +11,29 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@NamedEntityGraph(
+  name = "graph.TeamWithUsers",
+  attributeNodes = @NamedAttributeNode(value = "users")
+)
 @Table(name = "teams")
 @Entity
 public class Team {
 
   @Id
+  @GeneratedValue
   @Column(name = "id", nullable = false)
   private UUID id;
 
   @NotNull
-  @Column(name = "name", nullable = false, length = Integer.MAX_VALUE)
+  @Column(name = "name", nullable = false)
   private String name;
 
-  @NotNull
-  @Column(name = "captured_cells", nullable = false)
+  @Column(name = "captured_cells")
   private Integer capturedCells;
+
+  @NotNull
+  @Column(name = "owner_id", nullable = false)
+  private UUID ownerId;
 
   @ManyToMany
   @JoinTable(
@@ -33,5 +41,19 @@ public class Team {
     joinColumns = @JoinColumn(name = "team_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id")
   )
-  private Set<User> users = new LinkedHashSet<>();
+  private Set<User> users;
+
+  public void addUser(User user) {
+    if (users == null) {
+      users = new LinkedHashSet<>();
+    }
+
+    users.add(user);
+  }
+
+  public void removeUser(User user) {
+    if (users != null) {
+      users.remove(user);
+    }
+  }
 }

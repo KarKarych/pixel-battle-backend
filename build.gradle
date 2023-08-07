@@ -11,6 +11,10 @@ java {
   sourceCompatibility = "17"
 }
 
+bootJar {
+  mainClass = 'com.github.karkarych.pixelbattledsr.PixelBattleDsrApplication'
+}
+
 configurations {
   compileOnly {
     extendsFrom annotationProcessor

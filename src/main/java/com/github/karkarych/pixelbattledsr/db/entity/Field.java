@@ -5,7 +5,6 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,9 +23,8 @@ public class Field {
   @EmbeddedId
   private FieldId id;
 
-  @Size(max = 7)
   @NotNull
-  @Column(name = "color", nullable = false, length = 7)
+  @Column(name = "color", nullable = false)
   private String color;
 
   @Column(name = "owner_id")

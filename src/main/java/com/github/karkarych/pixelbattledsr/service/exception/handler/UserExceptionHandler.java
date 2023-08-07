@@ -1,25 +1,24 @@
 package com.github.karkarych.pixelbattledsr.service.exception.handler;
 
 import com.github.karkarych.pixelbattledsr.service.exception.ErrorResponse;
-import com.github.karkarych.pixelbattledsr.service.exception.model.FieldException;
+import com.github.karkarych.pixelbattledsr.service.exception.model.UserException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @RestControllerAdvice
-public class FieldExceptionHandler {
+public class UserExceptionHandler {
 
-  @ExceptionHandler(FieldException.class)
-  public ResponseEntity<ErrorResponse> handleFieldException(FieldException ex) {
-    FieldException.Code code = ex.getCode();
+  @ExceptionHandler(UserException.class)
+  public ResponseEntity<ErrorResponse> handleUserException(UserException ex) {
+    UserException.Code code = ex.getCode();
     HttpStatus status = switch (code) {
-      case FIELD_ROW_OUT_OF_RANGE, FIELD_COLUMN_OUT_OF_RANGE -> BAD_REQUEST;
-      case FIELD_TOO_MANY_REQUEST_UPDATE -> TOO_MANY_REQUESTS;
+      case USER_NOT_FOUND -> NOT_FOUND;
     };
 
     String codeStr = code.toString();

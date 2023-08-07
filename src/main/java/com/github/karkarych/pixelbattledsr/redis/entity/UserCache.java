@@ -1,4 +1,4 @@
-package com.github.karkarych.pixelbattledsr.redis;
+package com.github.karkarych.pixelbattledsr.redis.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.time.Instant;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@RedisHash("User")
+@RedisHash("UserCache")
 public class UserCache {
 
   @Id
